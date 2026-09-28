@@ -209,4 +209,16 @@ class ContactApiTest extends TestCase
             ->assertNotFound()
             ->assertExactJson(self::NOT_FOUND_JSON);
     }
+
+    public function test_japanese_text_is_returned_without_unicode_escape(): void
+    {
+        $this->getJson('/api/v1/contacts?gender=4')
+            ->assertStatus(422)
+            ->assertSee('性別の値が不正です', false);
+
+        $content = $this->getJson('/api/v1/contacts/9999')->getContent();
+
+        $this->assertStringContainsString('お問い合わせが見つかりませんでした。', $content);
+        $this->assertStringNotContainsString('\u', $content);
+    }
 }
