@@ -84,6 +84,21 @@ class Contact extends Model
     }
 
     /**
+     * お問い合わせを更新し、タグを送られた内容に置き換える
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function updateWithTags(array $attributes): self
+    {
+        return DB::transaction(function () use ($attributes) {
+            $this->update(Arr::except($attributes, ['tag_ids']));
+            $this->tags()->sync($attributes['tag_ids'] ?? []);
+
+            return $this;
+        });
+    }
+
+    /**
      * 性別の表示名
      */
     protected function genderLabel(): Attribute
