@@ -199,6 +199,8 @@ erDiagram
 ## 実装上の補足
 
 - 最新の Laravel Sail は PHP 8.5・MySQL 8.4 の設定を作るため、指定の技術スタックに合わせて `compose.yaml` を PHP 8.2（`runtimes/8.2`）・MySQL 8.0（公式イメージ `mysql:8.0`）に変更しています
+- 技術スタックの Web サーバー（Nginx）について：指定の環境構築手順（Laravel Sail）では Nginx を使わず、Sail 標準の PHP の Web サーバー（`php artisan serve`）でアプリを動かしています
+- 確認ページの「修正」は、ブラウザの「戻る」で入力ページに戻ります。ブラウザが入力内容を復元しない場合に備えて、確認ページを表示するときに入力内容を次の1回の表示まで保存しています（送信後の入力ページは初期状態です）
 - お問い合わせフォームの電話番号は、3つの入力欄の値を画面側の JavaScript でハイフンなしの1つの値（`tel`）にまとめて送信します。JavaScript が動かない場合に備えて、`StoreContactRequest` でもまとめています
 - Vite の入力に、お問い合わせフォーム用の `resources/js/contact/init.js` を追加しています
 - 公開 API は認証を行わないため、使用しない Laravel Sanctum は削除しています
