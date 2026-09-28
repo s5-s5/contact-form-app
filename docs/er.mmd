@@ -1,0 +1,48 @@
+erDiagram
+    users {
+        bigint id PK
+        varchar(255) name
+        varchar(255) email UK
+        timestamp email_verified_at "nullable"
+        varchar(255) password
+        varchar(100) remember_token "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+    categories {
+        bigint id PK
+        varchar(255) content
+        timestamp created_at
+        timestamp updated_at
+    }
+    contacts {
+        bigint id PK
+        bigint category_id FK "categories.id"
+        varchar(255) first_name
+        varchar(255) last_name
+        tinyint gender "1:male 2:female 3:other"
+        varchar(255) email
+        varchar(11) tel
+        varchar(255) address
+        varchar(255) building "nullable"
+        varchar(120) detail
+        timestamp created_at
+        timestamp updated_at
+    }
+    tags {
+        bigint id PK
+        varchar(50) name UK
+        timestamp created_at
+        timestamp updated_at
+    }
+    contact_tag {
+        bigint id PK
+        bigint contact_id FK "contacts.id"
+        bigint tag_id FK "tags.id"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    categories ||--o{ contacts : "has many"
+    contacts ||--o{ contact_tag : "has many"
+    tags ||--o{ contact_tag : "has many"

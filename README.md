@@ -1,66 +1,201 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# COACHTECH お問い合わせフォーム（FashionablyLate）
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 概要
 
-## About Laravel
+COACHTECH 確認テスト「お問い合わせフォーム」のアプリケーションです。
+一般のユーザーは誰でもお問い合わせを送信でき、管理者はログイン後にお問い合わせの確認・検索・削除、タグの管理、CSV 出力ができます。
+あわせて、お問い合わせデータを操作できる公開 API（認証なし）を備えています。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 実装した機能
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- お問い合わせフォーム（入力 → 確認 → 送信 → サンクス）と、入力内容のバリデーション（エラーメッセージは日本語）
+- 管理者登録・ログイン・ログアウト（Laravel Fortify）
+- 管理画面：お問い合わせ一覧（7件ごとのページネーション）、名前・メールアドレス・性別・お問い合わせの種類・日付による検索、詳細表示、削除
+- タグ管理：追加・編集・削除
+- CSV エクスポート：検索条件に一致するお問い合わせを BOM 付き CSV でダウンロード（条件がなければ全件を新しい順）
+- 公開 API：お問い合わせの一覧・詳細・作成・更新・削除
+- テスト（PHPUnit）：単体テスト・機能テスト
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 使用技術
 
-## Learning Laravel
+- PHP 8.2
+- Laravel 10.x
+- MySQL 8.0
+- Laravel Sail（Docker / Docker Compose）
+- Laravel Fortify（認証）
+- Blade / Vite / Tailwind CSS 3.4 / Alpine.js
+- phpMyAdmin
+- Laravel Pint / PHPUnit
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 環境構築
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Docker（Docker Desktop など）と Git を使える環境で、以下を順に実行してください。Windows の場合は WSL2 上で実行してください。
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. リポジトリを取得する
 
-## Laravel Sponsors
+    ```bash
+    git clone https://github.com/s5-s5/contact-form-app.git
+    cd contact-form-app
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. 環境変数ファイルを作成する
 
-### Premium Partners
+    ```bash
+    cp .env.example .env
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+3. PHP の依存パッケージ（Laravel Sail を含む）をインストールする
 
-## Contributing
+    ```bash
+    docker run --rm \
+        -u "$(id -u):$(id -g)" \
+        -v "$(pwd):/var/www/html" \
+        -w /var/www/html \
+        -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+        laravelsail/php82-composer:latest \
+        composer install
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. コンテナを起動する（初回はイメージの作成に数分かかります）
 
-## Code of Conduct
+    ```bash
+    ./vendor/bin/sail up -d
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    `sail` だけでコマンドを実行したい場合は、エイリアスを設定してください（bash の場合は `~/.bashrc`）。
 
-## Security Vulnerabilities
+    ```bash
+    echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.zshrc
+    exec $SHELL
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. アプリケーションキーを生成する
 
-## License
+    ```bash
+    ./vendor/bin/sail artisan key:generate
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+6. テーブルを作成し、初期データを投入する
+
+    ```bash
+    ./vendor/bin/sail artisan migrate --seed
+    ```
+
+7. フロントエンドの依存パッケージをインストールし、Vite を起動する（起動したままにしてください）
+
+    ```bash
+    ./vendor/bin/sail npm install
+    ./vendor/bin/sail npm run dev
+    ```
+
+    Vite を起動したままにしない場合は、代わりに `./vendor/bin/sail npm run build` でビルドしてください。
+
+## 開発環境 URL
+
+| 画面 | URL |
+|---|---|
+| お問い合わせフォーム | http://localhost/ |
+| 管理者登録 | http://localhost/register |
+| ログイン | http://localhost/login |
+| 管理画面 | http://localhost/admin |
+| phpMyAdmin | http://localhost:8080/ |
+
+初期データで、次の管理者が登録されます。
+
+- メールアドレス：`test@example.com`
+- パスワード：`password`
+
+## API エンドポイント一覧
+
+認証は不要です。
+
+| メソッド | パス | 概要 |
+|---|---|---|
+| GET | `/api/v1/contacts` | お問い合わせ一覧。`keyword`（姓・名・メールの部分一致）・`gender`（1〜3）・`category_id`・`date`（YYYY-MM-DD）で検索、`page`・`per_page`（既定 20、最大 100）でページを指定 |
+| GET | `/api/v1/contacts/{contact}` | お問い合わせ詳細（カテゴリ・タグを含む） |
+| POST | `/api/v1/contacts` | お問い合わせ作成（`tag_ids` でタグを紐付け） |
+| PUT | `/api/v1/contacts/{contact}` | お問い合わせ更新（タグは送信した `tag_ids` に置き換え） |
+| DELETE | `/api/v1/contacts/{contact}` | お問い合わせ削除 |
+
+- バリデーションエラーは `422`、存在しない ID は `404`（`{"error": "お問い合わせが見つかりませんでした。"}`）を返します
+- エラーメッセージは日本語です
+
+## ER 図
+
+`contacts` と `tags` は、中間テーブル `contact_tag` を介した多対多の関係です（`contact_id` と `tag_id` の組み合わせはユニーク）。
+外部キーはいずれも `ON DELETE CASCADE` です。同じ内容の画像は [docs/er.png](docs/er.png) にあります。
+
+```mermaid
+erDiagram
+    users {
+        bigint id PK
+        varchar(255) name
+        varchar(255) email UK
+        timestamp email_verified_at "nullable"
+        varchar(255) password
+        varchar(100) remember_token "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+    categories {
+        bigint id PK
+        varchar(255) content
+        timestamp created_at
+        timestamp updated_at
+    }
+    contacts {
+        bigint id PK
+        bigint category_id FK "categories.id"
+        varchar(255) first_name
+        varchar(255) last_name
+        tinyint gender "1:male 2:female 3:other"
+        varchar(255) email
+        varchar(11) tel
+        varchar(255) address
+        varchar(255) building "nullable"
+        varchar(120) detail
+        timestamp created_at
+        timestamp updated_at
+    }
+    tags {
+        bigint id PK
+        varchar(50) name UK
+        timestamp created_at
+        timestamp updated_at
+    }
+    contact_tag {
+        bigint id PK
+        bigint contact_id FK "contacts.id"
+        bigint tag_id FK "tags.id"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    categories ||--o{ contacts : "has many"
+    contacts ||--o{ contact_tag : "has many"
+    tags ||--o{ contact_tag : "has many"
+```
+
+## テスト
+
+```bash
+# すべてのテストを実行
+./vendor/bin/sail artisan test
+
+# カバレッジ付きで実行（.env の SAIL_XDEBUG_MODE に coverage を含めています）
+./vendor/bin/sail artisan test --coverage
+
+# コードの整形チェック
+./vendor/bin/sail bin pint --test
+```
+
+## 実装上の補足
+
+- 最新の Laravel Sail は PHP 8.5・MySQL 8.4 の設定を作るため、指定の技術スタックに合わせて `compose.yaml` を PHP 8.2（`runtimes/8.2`）・MySQL 8.0（公式イメージ `mysql:8.0`）に変更しています
+- お問い合わせフォームの電話番号は、3つの入力欄の値を画面側の JavaScript でハイフンなしの1つの値（`tel`）にまとめて送信します。JavaScript が動かない場合に備えて、`StoreContactRequest` でもまとめています
+- Vite の入力に、お問い合わせフォーム用の `resources/js/contact/init.js` を追加しています
+- 公開 API は認証を行わないため、使用しない Laravel Sanctum は削除しています
+
+## 作成者
+
+s5-s5
