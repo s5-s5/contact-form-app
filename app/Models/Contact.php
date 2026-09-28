@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class Contact extends Model
 {
@@ -64,6 +66,21 @@ class Contact extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
+    }
+
+    /**
+     * お問い合わせを登録し、タグを紐付ける
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function createWithTags(array $attributes): self
+    {
+        return DB::transaction(function () use ($attributes) {
+            $contact = self::create(Arr::except($attributes, ['tag_ids']));
+            $contact->tags()->attach($attributes['tag_ids'] ?? []);
+
+            return $contact;
+        });
     }
 
     /**
