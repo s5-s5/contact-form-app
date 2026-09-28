@@ -123,7 +123,12 @@ Docker（Docker Desktop など）と Git を使える環境で、以下を順に
 ## ER 図
 
 `contacts` と `tags` は、中間テーブル `contact_tag` を介した多対多の関係です（`contact_id` と `tag_id` の組み合わせはユニーク）。
-外部キーはいずれも `ON DELETE CASCADE` です。同じ内容の画像は [docs/er.png](docs/er.png) にあります。
+外部キーはいずれも `ON DELETE CASCADE` です。
+
+![ER 図](docs/er.png)
+
+<details>
+<summary>Mermaid 記法（テキスト）</summary>
 
 ```mermaid
 erDiagram
@@ -176,6 +181,8 @@ erDiagram
     tags ||--o{ contact_tag : "has many"
 ```
 
+</details>
+
 ## テスト
 
 ```bash
@@ -198,4 +205,4 @@ erDiagram
 
 ## 作成者
 
-s5-s5
+shogo
