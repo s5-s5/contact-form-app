@@ -27,12 +27,16 @@ class ContactController extends Controller
 
     /**
      * お問い合わせフォーム確認ページ
+     *
+     * 「修正」でブラウザの「戻る」を使ったときに入力内容が消えないよう、入力内容を次の表示まで保存しておく。
      */
     public function confirm(StoreContactRequest $request): View
     {
         $validated = $request->validated();
         $category = Category::find($validated['category_id']);
         $tags = Tag::whereIn('id', $validated['tag_ids'] ?? [])->get();
+
+        $request->flash();
 
         return view('contact.confirm', compact('validated', 'category', 'tags'));
     }

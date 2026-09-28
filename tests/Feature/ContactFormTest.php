@@ -144,4 +144,35 @@ class ContactFormTest extends TestCase
         $response->assertSessionHasErrors(['tel' => '電話番号はハイフンなしの10〜11桁で入力してください']);
         $this->assertDatabaseCount('contacts', 0);
     }
+
+    public function test_input_is_kept_when_returning_to_form_from_confirm_page(): void
+    {
+        $payload = $this->contactPayload(['tel1' => '090', 'tel2' => '1234', 'tel3' => '5678']);
+
+        $this->post('/contacts/confirm', $payload)->assertOk();
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('value="山田"', false);
+        $response->assertSee('value="太郎"', false);
+        $response->assertSee('value="test@example.com"', false);
+        $response->assertSee('value="090"', false);
+        $response->assertSee('value="5678"', false);
+        $response->assertSee('商品の配送日について');
+    }
+
+    public function test_form_is_reset_after_contact_is_sent(): void
+    {
+        $payload = $this->contactPayload();
+
+        $this->post('/contacts/confirm', $payload)->assertOk();
+        $this->post('/contacts', $payload)->assertRedirect('/thanks');
+        $this->get('/thanks')->assertOk();
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertDontSee('value="山田"', false);
+        $response->assertDontSee('value="test@example.com"', false);
+    }
 }
